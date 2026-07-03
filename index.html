@@ -77,14 +77,13 @@ body {
 .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
 /* SYNC */
-.sync-bar { display: flex; align-items: center; gap: 6px; padding: 3px 16px; background: var(--card); font-size: 10px; font-weight: 500; border-bottom: 1px solid var(--border); justify-content: center; transition: all 0.3s ease; overflow: hidden; max-height: 24px; }
-.sync-bar.connected { max-height: 0; padding: 0; border: none; opacity: 0; }
-.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #9CA3AF; transition: background 0.3s; flex-shrink: 0; }
-.sync-dot.connected { background: #10B981; box-shadow: 0 0 6px #10B981; }
-.sync-dot.connecting { background: #F59E0B; animation: pulse 1s infinite; }
-.sync-dot.error { background: #EF4444; }
+
+
+
+
+
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.sync-text { color: var(--text-2); }
+
 
 /* STATS */
 .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; padding: 12px 12px 0; margin-top: -8px; }
@@ -144,6 +143,23 @@ body {
 .save-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .error-msg { font-size: 11px; color: #EF4444; margin-top: 3px; display: none; }
 .error-msg.show { display: block; }
+
+/* PHOTO UPLOAD */
+.photo-upload-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--bg); border: 1.5px dashed var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; transition: all var(--transition); font-family: inherit; }
+.photo-upload-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.photo-preview-wrap { position: relative; display: inline-block; margin-top: 4px; }
+.photo-preview-img { width: 84px; height: 84px; object-fit: cover; border-radius: var(--radius-sm); border: 1.5px solid var(--border); display: block; }
+.photo-remove-btn { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; background: #EF4444; color: #fff; border: 2px solid var(--card); font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.photo-remove-btn:hover { background: #DC2626; }
+
+/* ITEM PHOTO THUMBNAIL */
+.item-photo { width: 100%; max-width: 140px; height: 90px; object-fit: cover; border-radius: var(--radius-sm); margin-top: 6px; display: block; cursor: pointer; border: 1.5px solid var(--border); }
+
+/* LIGHTBOX */
+.lightbox-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 24px; }
+.lightbox-overlay.open { display: flex; }
+.lightbox-overlay img { max-width: 100%; max-height: 100%; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.lightbox-close { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.15); color: #fff; border: none; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
 /* CATEGORY COLORS */
 .cat-Food { --ccolor: #FF6B6B; --cbg: #FFF0F0; }
@@ -305,7 +321,63 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 14px; color: var(--text-2); font-weight: 500; }
 
-/* OVERVIEW TAB */
+/* CUSTOM MULTI-SELECT DROPDOWN */
+.custom-select-wrap { position: relative; }
+.custom-select-trigger {
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-right: 32px !important; position: relative;
+}
+.custom-select-trigger::after {
+  content: '';
+  width: 12px; height: 12px; flex-shrink: 0;
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center;
+  transition: transform 0.25s;
+  pointer-events: none;
+}
+.custom-select-trigger.open::after { transform: translateY(-50%) rotate(180deg); }
+.custom-select-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--card); border: 1.5px solid var(--accent);
+  border-radius: var(--radius-sm); z-index: 9999;
+  display: none; box-shadow: 0 8px 24px rgba(108,99,255,0.2);
+  overflow: hidden;
+}
+.custom-select-dropdown.open { display: block; }
+.custom-option {
+  padding: 11px 14px; font-size: 14px; color: var(--text);
+  cursor: pointer; transition: background var(--transition);
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.custom-option:last-child { border-bottom: none; }
+.custom-option:hover { background: var(--bg); }
+.custom-option.selected { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.custom-option .check-icon { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; font-weight: 700; transition: all 0.2s; }
+.custom-option.selected .check-icon { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* PERSON MULTI-SELECT IN FORM */
+.person-chips-select { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0; }
+.pchip {
+  padding: 6px 14px; border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: var(--bg); font-size: 13px; font-weight: 600;
+  color: var(--text-2); cursor: pointer;
+  transition: all var(--transition);
+}
+.pchip:hover { border-color: var(--accent); color: var(--accent); }
+.pchip.selected { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 3px 10px rgba(108,99,255,0.35); }
+
+/* HISTORY DELETE BTN */
+.history-delete-btn {
+  padding: 5px 10px; background: transparent;
+  color: var(--text-3); border: 1.5px solid var(--border);
+  border-radius: 50px; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all var(--transition); flex-shrink: 0;
+}
+.history-delete-btn:hover { background: #FEE2E2; color: #EF4444; border-color: #EF4444; }
 .overview-person-block { background: var(--card); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; box-shadow: var(--shadow-sm); border: 1.5px solid var(--border); }
 .overview-person-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(135deg, var(--accent) 0%, #8B5CF6 100%); }
 .overview-person-name { font-size: 15px; font-weight: 700; color: #fff; flex: 1; }
@@ -381,10 +453,6 @@ body {
     <button class="tab-btn" data-tab="overview">👁️ Rezumat</button>
     <button class="tab-btn" data-tab="history">📋 Istoric</button>
   </div>
-
-  <div class="sync-bar" id="syncBar">
-    <div class="sync-dot connecting" id="syncDot"></div>
-    <span class="sync-text" id="syncText">Se conectează...</span>
   </div>
 
   <!-- STATS -->
@@ -494,17 +562,21 @@ body {
           </div>
           <div class="form-group">
             <label class="form-label">👤 Persoană</label>
-            <select class="form-select" id="fPerson">
-              <option value="">Alege...</option>
-              <option value="Abdo">Abdo</option>
-              <option value="Adi">Adi</option>
-              <option value="Dana">Dana</option>
-              <option value="Ioana">Ioana</option>
-              <option value="Bunica">Bunica</option>
-              <option value="Duras">Duras</option>
-              <option value="Lipici">Lipici</option>
-            </select>
-            <div class="error-msg" id="err-person">Alege...خص</div>
+            <div class="custom-select-wrap" id="personSelectWrap">
+              <div class="form-select custom-select-trigger" id="personTrigger">
+                <span id="personTriggerText">Alege...</span>
+              </div>
+              <div class="custom-select-dropdown" id="personDropdown">
+                <div class="custom-option" data-val="Abdo"><span class="check-icon"></span>Abdo</div>
+                <div class="custom-option" data-val="Adi"><span class="check-icon"></span>Adi</div>
+                <div class="custom-option" data-val="Dana"><span class="check-icon"></span>Dana</div>
+                <div class="custom-option" data-val="Ioana"><span class="check-icon"></span>Ioana</div>
+                <div class="custom-option" data-val="Bunica"><span class="check-icon"></span>Bunica</div>
+                <div class="custom-option" data-val="Duras"><span class="check-icon"></span>Duras</div>
+                <div class="custom-option" data-val="Lipici"><span class="check-icon"></span>Lipici</div>
+              </div>
+            </div>
+            <div class="error-msg" id="err-person">Alege cel puțin o persoană</div>
           </div>
         </div>
         <div class="form-group">
@@ -515,6 +587,15 @@ body {
         <div class="form-group">
           <label class="form-label">📝 Comentariu (opțional)</label>
           <textarea class="form-textarea" id="fComment" placeholder="ex: 1.5L, fără zahăr..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📷 Poză (opțional)</label>
+          <input type="file" accept="image/*" id="fPhoto" style="display:none">
+          <button type="button" class="photo-upload-btn" id="photoUploadBtn">📷 Adaugă poză</button>
+          <div class="photo-preview-wrap" id="photoPreviewWrap" style="display:none">
+            <img id="photoPreviewImg" class="photo-preview-img">
+            <button type="button" class="photo-remove-btn" id="photoRemoveBtn">✕</button>
+          </div>
         </div>
         <button class="save-btn" id="saveBtn"><span>💾</span> Salvează</button>
       </div>
@@ -624,6 +705,15 @@ body {
       <label class="form-label">📝 Comentariu</label>
       <textarea class="form-textarea" id="eFComment"></textarea>
     </div>
+    <div class="form-group">
+      <label class="form-label">📷 Poză (opțional)</label>
+      <input type="file" accept="image/*" id="eFPhoto" style="display:none">
+      <button type="button" class="photo-upload-btn" id="ePhotoUploadBtn">📷 Adaugă / schimbă poza</button>
+      <div class="photo-preview-wrap" id="ePhotoPreviewWrap" style="display:none">
+        <img id="ePhotoPreviewImg" class="photo-preview-img">
+        <button type="button" class="photo-remove-btn" id="ePhotoRemoveBtn">✕</button>
+      </div>
+    </div>
     <button class="modal-save-btn" id="modalSaveBtn">✅ Salvează modificările</button>
   </div>
 </div>
@@ -639,6 +729,12 @@ body {
       <button class="confirm-yes" id="confirmYes">Șterge</button>
     </div>
   </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <img id="lightboxImg" src="" alt="Poză produs">
 </div>
 
 <div class="toast" id="toast"></div>
@@ -672,12 +768,17 @@ function tryLogin() {
   }
 }
 
+let firebaseInitialized = false;
+
 function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('loadingOverlay').style.display = 'none'; // hide immediately
+  document.getElementById('loadingOverlay').style.display = 'none';
   document.getElementById('appWrapper').style.display = 'block';
   document.getElementById('fabBtn').style.display = 'flex';
-  initFirebase();
+  if (!firebaseInitialized) {
+    firebaseInitialized = true;
+    initFirebase();
+  }
   startClock();
   applyTheme(localStorage.getItem('lista_theme') || 'light');
 }
@@ -748,58 +849,34 @@ function getDayName(ts) {
 }
 
 function initFirebase() {
-  // ===== SHOW CACHE INSTANTLY — don't wait for Firebase =====
+  // Show cache instantly
   const cached = localStorage.getItem('lista_cache');
   if (cached) {
     try {
       items = JSON.parse(cached);
       render();
+      renderHistory();
       if (activeTab==='overview') renderOverview();
     } catch(e) {}
   }
 
-  // Firebase in background — doesn't block anything
-  try {
-    const app = initializeApp(firebaseConfig);
-    db = getDatabase(app);
-    itemsRef = ref(db, 'items');
+  // Connect Firebase in background
+  const app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
+  itemsRef = ref(db, 'items');
 
-    setSyncStatus('connecting', '🟡 Se conectează...');
-
-    onValue(itemsRef, (snapshot) => {
-      const data = snapshot.val();
-      items = data ? Object.entries(data).map(([id,val]) => ({id,...val})) : [];
-      localStorage.setItem('lista_cache', JSON.stringify(items));
-      if (!isConnected) {
-        isConnected = true;
-        setSyncStatus('connected', '🟢 Conectat');
-      }
-      render();
-      renderHistory();
-      if (activeTab==='overview') renderOverview();
-    }, (err) => {
-      setSyncStatus('error', '🔴 Eroare conexiune');
-    });
-
-    onValue(ref(db,'.info/connected'), (snap) => {
-      if (snap.val()===true) setSyncStatus('connected','🟢 Conectat');
-      else if (isConnected) setSyncStatus('connecting','🟡 Se reconectează...');
-    });
-
-  } catch(e) {
-    setSyncStatus('error', '🔴 Offline — se afișează date locale');
-  }
+  onValue(itemsRef, (snapshot) => {
+    const data = snapshot.val();
+    items = data ? Object.entries(data).map(([id,val]) => ({id,...val})) : [];
+    localStorage.setItem('lista_cache', JSON.stringify(items));
+    isConnected = true;
+    render();
+    renderHistory();
+    if (activeTab==='overview') renderOverview();
+  });
 }
 
-function setSyncStatus(state, text) {
-  const bar = document.getElementById('syncBar');
-  const dot = document.getElementById('syncDot');
-  const txt = document.getElementById('syncText');
-  dot.className = 'sync-dot ' + state;
-  txt.textContent = text;
-  if (state === 'connected') bar.classList.add('connected');
-  else bar.classList.remove('connected');
-}
+
 
 // ===== CLOCK =====
 function startClock() {
@@ -918,39 +995,159 @@ document.getElementById('overviewContent').addEventListener('click', async e => 
 });
 
 // ===== ADD ITEM =====
+// ===== CUSTOM MULTI-SELECT PERSON DROPDOWN =====
+let selectedPersonsForm = new Set();
+
+const trigger = document.getElementById('personTrigger');
+const dropdown = document.getElementById('personDropdown');
+
+trigger.addEventListener('click', () => {
+  trigger.classList.toggle('open');
+  dropdown.classList.toggle('open');
+});
+
+// Close when clicking outside
+document.addEventListener('click', e => {
+  if (!document.getElementById('personSelectWrap').contains(e.target)) {
+    trigger.classList.remove('open');
+    dropdown.classList.remove('open');
+  }
+});
+
+dropdown.addEventListener('click', e => {
+  const opt = e.target.closest('.custom-option');
+  if (!opt) return;
+  const val = opt.dataset.val;
+  if (selectedPersonsForm.has(val)) selectedPersonsForm.delete(val);
+  else selectedPersonsForm.add(val);
+  // Update UI
+  document.querySelectorAll('#personDropdown .custom-option').forEach(o => {
+    const isSelected = selectedPersonsForm.has(o.dataset.val);
+    o.classList.toggle('selected', isSelected);
+    const icon = o.querySelector('.check-icon');
+    if (icon) icon.textContent = isSelected ? '✓' : '';
+  });
+  // Update trigger text
+  const txt = document.getElementById('personTriggerText');
+  if (selectedPersonsForm.size === 0) txt.textContent = 'Alege...';
+  else if (selectedPersonsForm.size === 1) txt.textContent = [...selectedPersonsForm][0];
+  else txt.textContent = [...selectedPersonsForm].join(', ');
+  showErr('err-person', false);
+});
+
+// ===== PHOTO HANDLING =====
+let formPhotoData = null;
+let editPhotoData = null;
+
+function compressImage(file, maxSize = 700, quality = 0.65) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxSize) { height = Math.round(height * (maxSize / width)); width = maxSize; }
+        else if (height > maxSize) { width = Math.round(width * (maxSize / height)); height = maxSize; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function setPhotoPreview(wrapId, imgId, dataUrl) {
+  const wrap = document.getElementById(wrapId);
+  const img = document.getElementById(imgId);
+  if (dataUrl) { img.src = dataUrl; wrap.style.display = 'inline-block'; }
+  else { img.src = ''; wrap.style.display = 'none'; }
+}
+
+document.getElementById('photoUploadBtn').addEventListener('click', () => document.getElementById('fPhoto').click());
+document.getElementById('fPhoto').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    formPhotoData = await compressImage(file);
+    setPhotoPreview('photoPreviewWrap', 'photoPreviewImg', formPhotoData);
+  } catch { showToast('❌ Eroare la încărcarea pozei'); }
+  e.target.value = '';
+});
+document.getElementById('photoRemoveBtn').addEventListener('click', () => {
+  formPhotoData = null;
+  setPhotoPreview('photoPreviewWrap', 'photoPreviewImg', null);
+});
+
+document.getElementById('ePhotoUploadBtn').addEventListener('click', () => document.getElementById('eFPhoto').click());
+document.getElementById('eFPhoto').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    editPhotoData = await compressImage(file);
+    setPhotoPreview('ePhotoPreviewWrap', 'ePhotoPreviewImg', editPhotoData);
+  } catch { showToast('❌ Eroare la încărcarea pozei'); }
+  e.target.value = '';
+});
+document.getElementById('ePhotoRemoveBtn').addEventListener('click', () => {
+  editPhotoData = null;
+  setPhotoPreview('ePhotoPreviewWrap', 'ePhotoPreviewImg', null);
+});
+
+document.getElementById('lightboxOverlay').addEventListener('click', e => {
+  if (e.target.id === 'lightboxOverlay' || e.target.id === 'lightboxClose') {
+    document.getElementById('lightboxOverlay').classList.remove('open');
+  }
+});
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightboxOverlay').classList.add('open');
+}
+
 document.getElementById('saveBtn').addEventListener('click', addItem);
 document.getElementById('fName').addEventListener('keydown', e => { if(e.key==='Enter') addItem(); });
 
 async function addItem() {
-  const cat    = document.getElementById('fCategory').value.trim();
-  const name   = document.getElementById('fName').value.trim();
-  const person = document.getElementById('fPerson').value.trim();
-  const comment= document.getElementById('fComment').value.trim();
+  const cat     = document.getElementById('fCategory').value.trim();
+  const name    = document.getElementById('fName').value.trim();
+  const comment = document.getElementById('fComment').value.trim();
+  const persons = [...selectedPersonsForm];
 
   let valid = true;
-  if(!cat)    { showErr('err-category',true); valid=false; } else showErr('err-category',false);
-  if(!name)   { showErr('err-name',true); valid=false; }    else showErr('err-name',false);
-  if(!person) { showErr('err-person',true); valid=false; }  else showErr('err-person',false);
+  if(!cat)           { showErr('err-category',true); valid=false; } else showErr('err-category',false);
+  if(!name)          { showErr('err-name',true); valid=false; }    else showErr('err-name',false);
+  if(!persons.length){ showErr('err-person',true); valid=false; }  else showErr('err-person',false);
   if(!valid) return;
 
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.innerHTML = '<span>⏳</span> Se salvează...';
 
   const now = new Date();
+  // Save ONE item with all persons joined
+  const personStr = persons.join(', ');
   try {
     await push(itemsRef, {
-      name, cat, person, comment,
+      name, cat,
+      person: personStr,
+      comment,
+      image: formPhotoData || null,
       date: now.toLocaleDateString('ro-RO', {day:'2-digit',month:'2-digit',year:'numeric'}),
       time: now.toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'}),
       day: getDayName(now.getTime()),
       ts: now.getTime(),
       purchased: false,
     });
-    // Keep category & person, clear only name & comment
     document.getElementById('fName').value = '';
     document.getElementById('fComment').value = '';
+    formPhotoData = null;
+    setPhotoPreview('photoPreviewWrap', 'photoPreviewImg', null);
     document.getElementById('fName').focus();
-    showToast('✅ Salvat pentru toată familia!');
+    const msg = persons.length > 1 ? `✅ Salvat pentru ${personStr}!` : '✅ Salvat!';
+    showToast(msg);
   } catch { showToast('❌ Eroare la salvare'); }
 
   btn.disabled = false; btn.innerHTML = '<span>💾</span> Salvează';
@@ -1002,7 +1199,11 @@ function getFiltered() {
   // Category/status filter
   if (activeFilter==='purchased') list = list.filter(i => i.purchased);
   else if (activeFilter==='pending') list = list.filter(i => !i.purchased);
-  else if (activeFilter!=='all') list = list.filter(i => i.cat===activeFilter);
+  else if (activeFilter!=='all') {
+    list = list.filter(i => i.cat===activeFilter && !i.purchased); // hide purchased from category view too
+  } else {
+    list = list.filter(i => !i.purchased); // default: hide purchased from list
+  }
 
   // Search
   if (searchQuery) list = list.filter(i =>
@@ -1062,6 +1263,7 @@ function renderCard(item) {
           <span class="meta-badge ${item.purchased?'badge-status-ok':'badge-status-pending'}">${item.purchased?'✅ Cumpărat':'⏳ În așteptare'}</span>
         </div>
         ${item.comment?`<div class="item-comment">💬 ${esc(item.comment)}</div>`:''}
+        ${item.image?`<img src="${item.image}" class="item-photo" data-action="viewphoto" alt="Poză produs">`:''}
         <div class="item-datetime">📅 ${dayStr} • ${item.date} &nbsp; 🕒 ${item.time}</div>
       </div>
     </div>
@@ -1084,10 +1286,11 @@ function updateStats() {
 
 // ===== ITEM ACTIONS =====
 document.getElementById('itemsList').addEventListener('click', e => {
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  if(action==='viewphoto') { openLightbox(e.target.src); return; }
   const card = e.target.closest('[data-id]');
   if(!card) return;
   const id = card.dataset.id;
-  const action = e.target.closest('[data-action]')?.dataset.action;
   if(action==='toggle') togglePurchased(id);
   else if(action==='edit') openEdit(id);
   else if(action==='delete') openConfirm(id);
@@ -1110,6 +1313,8 @@ function openEdit(id) {
   document.getElementById('eFCategory').value = item.cat;
   document.getElementById('eFPerson').value = item.person;
   document.getElementById('eFComment').value = item.comment||'';
+  editPhotoData = item.image || null;
+  setPhotoPreview('ePhotoPreviewWrap', 'ePhotoPreviewImg', editPhotoData);
   document.getElementById('editModal').classList.add('open');
 }
 
@@ -1125,6 +1330,7 @@ document.getElementById('modalSaveBtn').addEventListener('click', async () => {
       cat: document.getElementById('eFCategory').value,
       person: document.getElementById('eFPerson').value,
       comment: document.getElementById('eFComment').value.trim(),
+      image: editPhotoData || null,
     });
     document.getElementById('editModal').classList.remove('open'); editId=null;
     showToast('✏️ Modificat cu succes!');
@@ -1264,13 +1470,17 @@ function renderHistory() {
         return `<div class="history-card cat-${item.cat}" data-hid="${item.id}">
           <div class="history-card-top">
             <div class="history-card-name">${cfg.icon} ${esc(item.name)}</div>
-            <button class="readd-btn" data-action="readd" data-id="${item.id}">↩ Adaugă din nou</button>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <button class="readd-btn" data-action="readd" data-id="${item.id}">↩ Adaugă din nou</button>
+              <button class="history-delete-btn" data-action="hdelete" data-id="${item.id}">🗑️</button>
+            </div>
           </div>
           <div class="history-meta">
             <span class="meta-badge badge-person">👤 ${esc(item.person)}</span>
             <span class="meta-badge badge-status-ok">✅ Cumpărat</span>
           </div>
           ${item.comment?`<div class="item-comment">💬 ${esc(item.comment)}</div>`:''}
+          ${item.image?`<img src="${item.image}" class="item-photo" data-action="viewphoto" alt="Poză produs">`:''}
           <div class="history-datetime">🕒 ${item.time}</div>
         </div>`;
       }).join('');
@@ -1278,23 +1488,35 @@ function renderHistory() {
 }
 
 document.getElementById('historyList').addEventListener('click', async e => {
+  if (e.target.closest('[data-action="viewphoto"]')) { openLightbox(e.target.src); return; }
+
   const btn = e.target.closest('[data-action="readd"]');
-  if(!btn) return;
-  const id = btn.dataset.id;
-  const item = items.find(i=>i.id===id);
-  if(!item) return;
-  const now = new Date();
-  try {
-    await push(itemsRef, {
-      name: item.name, cat: item.cat, person: item.person, comment: item.comment||'',
-      date: now.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric'}),
-      time: now.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}),
-      day: getDayName(now.getTime()),
-      ts: now.getTime(),
-      purchased: false,
-    });
-    showToast('✅ Produs readăugat cu succes!');
-  } catch { showToast('❌ Eroare la adăugare'); }
+  if (btn) {
+    const id = btn.dataset.id;
+    const item = items.find(i=>i.id===id);
+    if(!item) return;
+    const now = new Date();
+    try {
+      await push(itemsRef, {
+        name: item.name, cat: item.cat, person: item.person, comment: item.comment||'', image: item.image||null,
+        date: now.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric'}),
+        time: now.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'}),
+        day: getDayName(now.getTime()),
+        ts: now.getTime(),
+        purchased: false,
+      });
+      showToast('✅ Produs readăugat cu succes!');
+    } catch { showToast('❌ Eroare la adăugare'); }
+  }
+
+  const delBtn = e.target.closest('[data-action="hdelete"]');
+  if (delBtn) {
+    const id = delBtn.dataset.id;
+    const item = items.find(i=>i.id===id);
+    if (!item) return;
+    deleteId = id;
+    document.getElementById('confirmOverlay').classList.add('open');
+  }
 });
 
 // ===== EXPORT =====
